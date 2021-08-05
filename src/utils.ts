@@ -1,3 +1,6 @@
+import { Currency, CurrencyAmount } from '@uniswap/sdk-core';
+import { BigNumber } from 'ethers';
+
 export function addressEquals(address1: string, address2: string): boolean {
     return address1.toLowerCase() === address2.toLowerCase();
 }
@@ -10,4 +13,10 @@ export function containsAddress(addresses: string[], test: string): boolean {
     }
 
     return false;
+}
+
+export function toBaseUnits<T extends Currency>(
+    amount: CurrencyAmount<T>,
+): BigNumber {
+    return BigNumber.from(amount.quotient.toString());
 }

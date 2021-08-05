@@ -1,7 +1,7 @@
 import invariant from 'tiny-invariant';
 import { CurrencyAmount, Token } from '@uniswap/sdk-core';
 import { BigNumber, BigNumberish } from 'ethers';
-import { toBaseUnits } from './amount';
+import { toBaseUnits } from '../utils';
 
 const TRANCHE_RATIO_GRANULARITY = 1000;
 

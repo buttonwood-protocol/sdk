@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { CurrencyAmount, Ether, Token } from '@uniswap/sdk-core';
-import { toBaseUnits } from '../../src/entities/amount';
+import { toBaseUnits } from '../src/utils';
 
 describe('toBaseUnits', () => {
     it('Converts amount to base units', () => {
