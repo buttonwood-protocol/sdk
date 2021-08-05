@@ -2,18 +2,19 @@ import invariant from 'tiny-invariant';
 import { CurrencyAmount, Token } from '@uniswap/sdk-core';
 import { BigNumber, BigNumberish } from 'ethers';
 import { toBaseUnits } from '../utils';
+import { Tranche } from './tranche';
 
 const TRANCHE_RATIO_GRANULARITY = 1000;
 
 export interface TrancheData {
-    address: string;
+    id: string;
     ratio: number;
     totalCollateral: BigNumberish;
     token: TokenData;
 }
 
 export interface TokenData {
-    address: string;
+    id: string;
     symbol: string;
     name: string;
     decimals: number;
@@ -21,7 +22,7 @@ export interface TokenData {
 }
 
 export interface BondData {
-    address: string;
+    id: string;
     collateral: TokenData;
     tranches: TrancheData[];
     mature: boolean;
@@ -31,15 +32,40 @@ export interface BondData {
 
 export class Bond {
     public collateral: Token;
+    public tranches: Tranche[] = [];
 
-    constructor(public data: BondData) {
+    constructor(private data: BondData) {
         this.collateral = new Token(
             1,
-            data.collateral.address,
+            data.collateral.id,
             data.collateral.decimals,
             data.collateral.symbol,
             data.collateral.name,
         );
+
+        for (const tranche of this.data.tranches) {
+            this.tranches.push(new Tranche(tranche, this.collateral));
+        }
+    }
+
+    get address(): string {
+        return this.data.id;
+    }
+
+    get totalDebt(): BigNumber {
+        return BigNumber.from(this.data.totalDebt);
+    }
+
+    get totalCollateral(): BigNumber {
+        return BigNumber.from(this.data.totalCollateral);
+    }
+
+    get dcr(): BigNumber {
+        return this.totalDebt.div(this.totalCollateral);
+    }
+
+    get mature(): boolean {
+        return this.data.mature;
     }
 
     /**
@@ -56,17 +82,17 @@ export class Bond {
         const input = toBaseUnits(collateralInput);
         const result: CurrencyAmount<Token>[] = [];
 
-        for (const tranche of this.data.tranches) {
-            const trancheToken = this.getTrancheToken(tranche);
-            if (BigNumber.from(this.data.totalCollateral).eq(0)) {
+        for (const tranche of this.tranches) {
+            const trancheToken = tranche.token;
+            if (BigNumber.from(this.totalCollateral).eq(0)) {
                 result.push(CurrencyAmount.fromRawAmount(trancheToken, '0'));
             } else {
                 // Multiply input by the tranche ratio and by the debt:collateral ratio
                 const outputAmount = input
                     .mul(tranche.ratio)
-                    .mul(this.data.totalDebt)
+                    .mul(this.totalDebt)
                     .div(TRANCHE_RATIO_GRANULARITY)
-                    .div(this.data.totalCollateral);
+                    .div(this.totalCollateral);
                 result.push(
                     CurrencyAmount.fromRawAmount(
                         trancheToken,
@@ -84,12 +110,12 @@ export class Bond {
      * @return output The amount of collateral returned
      */
     redeemMature(trancheAmount: CurrencyAmount<Token>): CurrencyAmount<Token> {
-        invariant(this.data.mature, 'Bond is not mature');
+        invariant(this.mature, 'Bond is not mature');
 
-        let tranche: TrancheData | undefined = undefined;
-        for (const trancheData of this.data.tranches) {
-            if (trancheData.address === trancheAmount.currency.address) {
-                tranche = trancheData;
+        let tranche: Tranche | undefined = undefined;
+        for (const t of this.tranches) {
+            if (t.address === trancheAmount.currency.address) {
+                tranche = t;
             }
         }
         invariant(tranche, 'Invalid tranche for bond');
@@ -98,7 +124,7 @@ export class Bond {
             this.collateral,
             BigNumber.from(tranche.totalCollateral)
                 .mul(toBaseUnits(trancheAmount))
-                .div(tranche.token.totalSupply)
+                .div(tranche.totalSupply)
                 .toString(),
         );
     }
@@ -118,16 +144,9 @@ export class Bond {
         return CurrencyAmount.fromRawAmount(
             this.collateral,
             totalDebtRedeemed
-                .mul(this.data.totalCollateral)
-                .div(this.data.totalDebt)
+                .mul(this.totalCollateral)
+                .div(this.totalDebt)
                 .toString(),
         );
-    }
-
-    /**
-     * Build a token object from the given tranche data
-     */
-    private getTrancheToken(tranche: TrancheData) {
-        return new Token(1, tranche.address, this.data.collateral.decimals);
     }
 }

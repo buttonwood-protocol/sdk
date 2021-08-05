@@ -13,12 +13,12 @@ export class LoanManager {
     public currency!: Token;
 
     constructor(public bond: Bond, public pools: Pool[]) {
-        invariant(pools.length === bond.data.tranches.length, 'Invalid pools');
+        invariant(pools.length === bond.tranches.length, 'Invalid pools');
         invariant(pools.length > 0, 'No pools');
 
         for (let i = 0; i < pools.length; i++) {
             const pool = pools[i];
-            const tranche = bond.data.tranches[i];
+            const tranche = bond.tranches[i];
             invariant(
                 containsAddress(
                     [pool.token0.address, pool.token1.address],
@@ -35,8 +35,7 @@ export class LoanManager {
 
     getTranchePrice(trancheIndex: number): Price<Token, Token> {
         const pool = this.pools[trancheIndex];
-        return this.bond.data.tranches[trancheIndex].address ===
-            pool.token0.address
+        return this.bond.tranches[trancheIndex].address === pool.token0.address
             ? pool.token0Price
             : pool.token1Price;
     }
