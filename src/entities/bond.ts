@@ -1,6 +1,7 @@
 import invariant from 'tiny-invariant';
 import { CurrencyAmount, Token } from '@uniswap/sdk-core';
-import { BigNumber, BigNumberish } from 'ethers';
+import BondAbi from '../../abis/BondController.json';
+import { BigNumber, BigNumberish, Contract } from 'ethers';
 import { toBaseUnits } from '../utils';
 import { Tranche } from './tranche';
 
@@ -44,7 +45,7 @@ export class Bond {
         );
 
         for (const tranche of this.data.tranches) {
-            this.tranches.push(new Tranche(tranche, this.collateral));
+            this.tranches.push(new Tranche(tranche));
         }
     }
 
@@ -66,6 +67,10 @@ export class Bond {
 
     get mature(): boolean {
         return this.data.mature;
+    }
+
+    get contract(): Contract {
+        return new Contract(this.address, BondAbi);
     }
 
     /**
