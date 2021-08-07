@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant';
-import { Bond } from './entities/bond';
+import { BigNumber } from 'ethers';
+import { Bond, TRANCHE_RATIO_GRANULARITY } from './entities/bond';
 import { Pool } from '@uniswap/v3-sdk';
 import { CurrencyAmount, Price, Token } from '@uniswap/sdk-core';
 import { addressEquals, containsAddress } from './utils';
@@ -38,6 +39,155 @@ export class LoanManager {
         return this.bond.tranches[trancheIndex].address === pool.token0.address
             ? pool.token0Price
             : pool.token1Price;
+    }
+
+    /**
+     * Get the total discount when selling the given tranche tokens
+     * @param sales The number of tranche tokens to sell, maybe output from `getSales`
+     * @return discount The discount at which the user is getting currency from tranches
+     */
+    async getDiscount(sales: CurrencyAmount<Token>[]): Promise<number> {
+        invariant(sales.length === this.pools.length, 'Invalid sales');
+
+        let totalAmountIn = BigNumber.from(0);
+        let totalAmountOut = BigNumber.from(0);
+        for (let i = 0; i < sales.length; i++) {
+            const sale = sales[i];
+            const pool = this.pools[i];
+            const amountOut = (await pool.getOutputAmount(sale))[0];
+            totalAmountOut = totalAmountOut.add(amountOut.toString());
+            totalAmountIn = totalAmountIn.add(sale.toString());
+        }
+        const discount = totalAmountIn.mul(1000).div(totalAmountOut).toNumber();
+        return discount / 1000;
+    }
+
+    /**
+     * Get the sales required to get the desired output tokens with the given deposit size
+     * Tries to minimize discount by selling lower tranches first
+     * @param desiredOutput The amount of output currency expected
+     * @param deposit The amount of collateral to deposit
+     * @return sales Tranche by tranche the number of tranche tokens that need to be sold
+     */
+    async getSales(
+        desiredOutput: CurrencyAmount<Token>,
+        deposit: CurrencyAmount<Token>,
+    ): Promise<CurrencyAmount<Token>[]> {
+        invariant(
+            addressEquals(
+                desiredOutput.currency.address,
+                this.currency.address,
+            ),
+            'Invalid output currency',
+        );
+
+        invariant(
+            addressEquals(
+                deposit.currency.address,
+                this.bond.collateral.address,
+            ),
+            'Invalid deposit currency',
+        );
+        const trancheTokens = this.bond.deposit(deposit);
+
+        const sales: CurrencyAmount<Token>[] = [];
+        let runningOutput = CurrencyAmount.fromRawAmount(
+            desiredOutput.currency,
+            0,
+        );
+        for (let i = 0; i < this.pools.length; i++) {
+            const pool = this.pools[i];
+            const tranche = this.bond.tranches[i];
+            const trancheAmount = trancheTokens[i];
+
+            if (
+                runningOutput.greaterThan(desiredOutput) ||
+                runningOutput.equalTo(desiredOutput)
+            ) {
+                sales.push(CurrencyAmount.fromRawAmount(tranche.token, 0));
+            } else {
+                const maxOutput = (
+                    await pool.getOutputAmount(trancheAmount)
+                )[0];
+
+                if (runningOutput.add(maxOutput).lessThan(desiredOutput)) {
+                    sales.push(trancheAmount);
+                    runningOutput = runningOutput.add(maxOutput);
+                } else {
+                    const input = (
+                        await pool.getInputAmount(
+                            desiredOutput.subtract(runningOutput),
+                        )
+                    )[0];
+                    sales.push(input);
+                    runningOutput = desiredOutput;
+                }
+            }
+        }
+        invariant(
+            runningOutput.greaterThan(desiredOutput) ||
+                runningOutput.lessThan(desiredOutput),
+            'Insufficient deposit',
+        );
+
+        return sales;
+    }
+
+    /**
+     * Get the maximum required deposit to get the desired amount of output currency
+     * Note this calculates the required deposit by only selling A tranches for the minimum discount
+     * In other words, this is the maximum collateralization for the given output - using a higher
+     * collateralization has no benefit for the user.
+     * A user may use a lower collateralization, but will suffer higher discount rates
+     */
+    async getMaximumRequiredDeposit(
+        desiredOutput: CurrencyAmount<Token>,
+    ): Promise<CurrencyAmount<Token>> {
+        invariant(
+            addressEquals(
+                desiredOutput.currency.address,
+                this.currency.address,
+            ),
+            'Invalid output currency',
+        );
+
+        const aTrancheIn = (
+            await this.pools[0].getInputAmount(desiredOutput)
+        )[0];
+        return this.bond.getRequiredDeposit(aTrancheIn);
+    }
+
+    /**
+     * Get the minimum required deposit to get the desired amount of output currency
+     * Note this calculates the required deposit by selling all tranches except Z
+     * In other words, this is the minimum collateralization for the given output - using a higher
+     * collateralization would not be able to achieve the desired output amount.
+     * A user may use a higher collateralization for lower discount rate
+     */
+    async getMinimumRequiredDeposit(
+        desiredOutput: CurrencyAmount<Token>,
+    ): Promise<CurrencyAmount<Token>> {
+        invariant(
+            addressEquals(
+                desiredOutput.currency.address,
+                this.currency.address,
+            ),
+            'Invalid output currency',
+        );
+
+        // note this is just an approximation as the lower discount of lower tranches may result in
+        // extra output. Maybe we could do a quick binary search here to find more precise value
+        const yTrancheRatio =
+            this.bond.tranches[this.bond.tranches.length - 2].ratio;
+        const desiredYOutput = desiredOutput
+            .multiply(yTrancheRatio)
+            .divide(TRANCHE_RATIO_GRANULARITY);
+        const aTrancheIn = (
+            await this.pools[this.bond.tranches.length - 2].getInputAmount(
+                desiredYOutput,
+            )
+        )[0];
+        return this.bond.getRequiredDeposit(aTrancheIn);
     }
 
     /**
