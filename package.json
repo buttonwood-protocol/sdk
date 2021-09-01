@@ -1,52 +1,52 @@
 {
-  "name": "@buttonwood/sdk",
-  "version": "1.0.3",
-  "description": "Typescript SDK for the Buttonwood Protocol",
-  "main": "src/index.ts",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/buttonwood-protocol/sdk.git"
-  },
-  "author": "Mark Toda <toda.mark@gmail.com>",
-  "license": "GPL-3.0-or-later",
-  "scripts": {
-    "clean": "rimraf coverage build tmp",
-    "prebuild": "npm run lint",
-    "build": "tsc -p tsconfig.json",
-    "build:watch": "tsc -w -p tsconfig.json",
-    "lint": "yarn eslint && yarn prettier:list-different",
-    "lint:fix": "yarn eslint:fix && yarn prettier",
-    "eslint": "eslint . --ext .ts,.tsx",
-    "eslint:fix": "eslint . --fix --ext .ts,.tsx",
-    "prettier": "prettier --config .prettierrc --write \"**/*.{js,json,md,sol,ts}\"",
-    "prettier:list-different": "prettier --config .prettierrc --list-different \"**/*.{js,json,md,sol,ts}\"",
-    "test": "jest --coverage",
-    "test:watch": "jest --watch"
-  },
-  "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.29.0",
-    "@typescript-eslint/parser": "^4.29.0",
-    "@uniswap/sdk-core": "^3.0.1",
-    "@uniswap/v3-sdk": "^3.3.2",
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-jest": "^24.4.0",
-    "ethers": "^5.4.3",
-    "jest": "^27.0.6",
-    "prettier": "^2.3.2",
-    "tiny-invariant": "^1.1.0",
-    "typescript": "^4.3.5"
-  },
-  "devDependencies": {
-    "@types/jest": "^26.0.24",
-    "ts-jest": "^27.0.4",
-    "ts-node": "^10.1.0"
-  },
-  "bugs": {
-    "url": "https://github.com/buttonwood-protocol/sdk/issues"
-  },
-  "homepage": "https://github.com/buttonwood-protocol/sdk#readme",
-  "directories": {
-    "test": "test"
-  }
+    "name": "@buttonwood/sdk",
+    "version": "1.0.4",
+    "description": "Typescript SDK for the Buttonwood Protocol",
+    "main": "src/index.ts",
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/buttonwood-protocol/sdk.git"
+    },
+    "author": "Mark Toda <toda.mark@gmail.com>",
+    "license": "GPL-3.0-or-later",
+    "scripts": {
+        "clean": "rimraf coverage build tmp",
+        "prebuild": "npm run lint",
+        "build": "tsc -p tsconfig.json",
+        "build:watch": "tsc -w -p tsconfig.json",
+        "lint": "yarn eslint && yarn prettier:list-different",
+        "lint:fix": "yarn eslint:fix && yarn prettier",
+        "eslint": "eslint . --ext .ts,.tsx",
+        "eslint:fix": "eslint . --fix --ext .ts,.tsx",
+        "prettier": "prettier --config .prettierrc --write \"**/*.{js,json,md,sol,ts}\"",
+        "prettier:list-different": "prettier --config .prettierrc --list-different \"**/*.{js,json,md,sol,ts}\"",
+        "test": "jest --coverage",
+        "test:watch": "jest --watch"
+    },
+    "dependencies": {
+        "@typescript-eslint/eslint-plugin": "^4.29.0",
+        "@typescript-eslint/parser": "^4.29.0",
+        "@uniswap/sdk-core": "^3.0.1",
+        "@uniswap/v3-sdk": "^3.3.2",
+        "eslint": "^7.32.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-jest": "^24.4.0",
+        "ethers": "^5.4.3",
+        "jest": "^27.0.6",
+        "prettier": "^2.3.2",
+        "tiny-invariant": "^1.1.0",
+        "typescript": "^4.3.5"
+    },
+    "devDependencies": {
+        "@types/jest": "^26.0.24",
+        "ts-jest": "^27.0.4",
+        "ts-node": "^10.1.0"
+    },
+    "bugs": {
+        "url": "https://github.com/buttonwood-protocol/sdk/issues"
+    },
+    "homepage": "https://github.com/buttonwood-protocol/sdk#readme",
+    "directories": {
+        "test": "test"
+    }
 }
