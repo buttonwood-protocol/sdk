@@ -31,6 +31,7 @@ function getBondData({
     const address = '0x8feb0797217962c517fac6da4f8667cc000129ff';
     return {
         id: address,
+        maturityDate: '1630532337',
         collateral: {
             id: '0x1439b0429a3ad079c55093fbfd59a7c00c888d00',
             symbol: 'AMPL',
