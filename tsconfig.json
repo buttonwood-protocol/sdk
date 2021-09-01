@@ -5,6 +5,7 @@
         "lib": ["es5", "es6"],
         "module": "commonjs",
         "moduleResolution": "node",
+        "declaration": true,
         "noImplicitAny": true,
         "outDir": "dist",
         "resolveJsonModule": true,
