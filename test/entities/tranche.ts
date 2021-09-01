@@ -51,7 +51,9 @@ describe('Tranche', () => {
     it('Fetches tranche decimals', () => {
         const trancheData = getTrancheData();
         const tranche = new Tranche(trancheData);
-        expect(tranche.decimals).toEqual(parseInt(trancheData.token.decimals, 10));
+        expect(tranche.decimals).toEqual(
+            parseInt(trancheData.token.decimals, 10),
+        );
     });
 
     it('Fetches token', () => {
