@@ -11,7 +11,8 @@ function getTrancheData(
 ): TrancheData {
     return {
         id: address,
-        ratio,
+        ratio: ratio.toString(),
+        index: '0',
         totalCollateral,
         token: {
             id: address,

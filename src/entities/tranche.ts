@@ -11,7 +11,11 @@ export class Tranche {
     }
 
     get ratio(): number {
-        return this.data.ratio;
+        return parseInt(this.data.ratio, 10);
+    }
+
+    get index(): number {
+        return parseInt(this.data.index, 10);
     }
 
     get totalCollateral(): BigNumber {

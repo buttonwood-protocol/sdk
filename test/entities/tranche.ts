@@ -6,7 +6,8 @@ function getTrancheData(): TrancheData {
     const address = '0xf96499dd6074d44401eb87e37b6e58c5c78ba007';
     return {
         id: address,
-        ratio: 500,
+        ratio: '500',
+        index: '1',
         totalCollateral: '120000000000',
         token: {
             id: address,

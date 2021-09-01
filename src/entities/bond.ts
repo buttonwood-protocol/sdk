@@ -9,7 +9,8 @@ export const TRANCHE_RATIO_GRANULARITY = 1000;
 
 export interface TrancheData {
     id: string;
-    ratio: number;
+    index: string;
+    ratio: string;
     totalCollateral: BigNumberish;
     token: TokenData;
 }
