@@ -47,9 +47,8 @@ export class Bond {
             data.collateral.name,
         );
 
-        for (const tranche of this.data.tranches.sort((a, b) =>
-            a > b ? 1 : -1,
-        )) {
+        const sortedTranches = [...this.data.tranches].sort((a, b) => a.index > b.index ? 1 : -1);
+        for (const tranche of sortedTranches) {
             this.tranches.push(new Tranche(tranche));
         }
     }

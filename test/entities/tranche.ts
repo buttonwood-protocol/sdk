@@ -29,7 +29,7 @@ describe('Tranche', () => {
     it('Fetches tranche ratio', () => {
         const trancheData = getTrancheData();
         const tranche = new Tranche(trancheData);
-        expect(tranche.ratio).toEqual(trancheData.ratio);
+        expect(tranche.ratio).toEqual(parseInt(trancheData.ratio, 10));
     });
 
     it('Fetches tranche total collateral', () => {
@@ -51,7 +51,7 @@ describe('Tranche', () => {
     it('Fetches tranche decimals', () => {
         const trancheData = getTrancheData();
         const tranche = new Tranche(trancheData);
-        expect(tranche.decimals).toEqual(trancheData.token.decimals);
+        expect(tranche.decimals).toEqual(parseInt(trancheData.token.decimals, 10));
     });
 
     it('Fetches token', () => {

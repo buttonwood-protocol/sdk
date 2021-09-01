@@ -6,13 +6,14 @@ import { addressEquals, toBaseUnits } from '../../src/utils';
 function getTrancheData(
     address: string,
     ratio: number,
+    index: number,
     totalCollateral: string,
     totalSupply: string,
 ): TrancheData {
     return {
         id: address,
         ratio: ratio.toString(),
-        index: '0',
+        index: index.toString(),
         totalCollateral,
         token: {
             id: address,
@@ -44,18 +45,21 @@ function getBondData({
             getTrancheData(
                 '0xd6d8d269933c02db9f46f0f5b630ae91796a6afc',
                 200,
+                0,
                 '1000000',
                 '1000000',
             ),
             getTrancheData(
                 '0x881d40237659c251811cec9c364ef91dc08d300c',
                 300,
+                1,
                 '1000000',
                 '1000000',
             ),
             getTrancheData(
                 '0xd24400ae8bfebb18ca49be86258a3c749cf46853',
                 500,
+                2,
                 '1000000',
                 '1000000',
             ),
