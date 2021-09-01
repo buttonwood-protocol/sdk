@@ -24,6 +24,7 @@ export interface TokenData {
 
 export interface BondData {
     id: string;
+    maturityDate: string;
     collateral: TokenData;
     tranches: TrancheData[];
     mature: boolean;
