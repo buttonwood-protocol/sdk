@@ -67,6 +67,10 @@ export class Bond {
         return this.totalDebt.div(this.totalCollateral);
     }
 
+    get maturityDate(): BigNumber {
+        return BigNumber.from(this.data.maturityDate);
+    }
+
     get mature(): boolean {
         return this.data.mature;
     }

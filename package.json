@@ -1,6 +1,6 @@
 {
   "name": "@buttonwood/sdk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Typescript SDK for the Buttonwood Protocol",
   "main": "src/index.ts",
   "repository": {
