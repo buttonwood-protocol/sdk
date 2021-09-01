@@ -12,7 +12,7 @@ function getTrancheData(): TrancheData {
             id: address,
             symbol: 'tranche',
             name: 'tranche Z',
-            decimals: 18,
+            decimals: '18',
             totalSupply: '1230012300',
         },
     };
@@ -57,7 +57,11 @@ describe('Tranche', () => {
         const trancheData = getTrancheData();
         const tranche = new Tranche(trancheData);
         expect(tranche.token).toEqual(
-            new Token(1, trancheData.token.id, trancheData.token.decimals),
+            new Token(
+                1,
+                trancheData.token.id,
+                parseInt(trancheData.token.decimals, 10),
+            ),
         );
     });
 

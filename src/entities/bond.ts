@@ -18,7 +18,7 @@ export interface TokenData {
     id: string;
     symbol: string;
     name: string;
-    decimals: number;
+    decimals: string;
     totalSupply: BigNumberish;
 }
 
@@ -41,7 +41,7 @@ export class Bond {
         this.collateral = new Token(
             1,
             data.collateral.id,
-            data.collateral.decimals,
+            parseInt(data.collateral.decimals, 10),
             data.collateral.symbol,
             data.collateral.name,
         );

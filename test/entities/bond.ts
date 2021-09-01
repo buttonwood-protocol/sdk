@@ -17,7 +17,7 @@ function getTrancheData(
             id: address,
             symbol: 'tranche',
             name: 'tranche Z',
-            decimals: 9,
+            decimals: '9',
             totalSupply,
         },
     };
@@ -36,7 +36,7 @@ function getBondData({
             id: '0x1439b0429a3ad079c55093fbfd59a7c00c888d00',
             symbol: 'AMPL',
             name: 'Ampleforth',
-            decimals: 9,
+            decimals: '9',
             totalSupply: '123123123123123',
         },
         tranches: [
@@ -115,7 +115,7 @@ describe('Bond', () => {
             new Token(
                 1,
                 bondData.collateral.id,
-                bondData.collateral.decimals,
+                parseInt(bondData.collateral.decimals, 10),
                 bondData.collateral.symbol,
                 bondData.collateral.name,
             ),

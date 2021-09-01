@@ -19,7 +19,7 @@ export class Tranche {
     }
 
     get decimals(): number {
-        return this.data.token.decimals;
+        return parseInt(this.data.token.decimals, 10);
     }
 
     get totalSupply(): BigNumber {
@@ -27,7 +27,7 @@ export class Tranche {
     }
 
     get token(): Token {
-        return new Token(1, this.address, this.data.token.decimals);
+        return new Token(1, this.address, this.decimals);
     }
 
     get contract(): Contract {
