@@ -103,7 +103,7 @@ describe('Bond', () => {
         const bondData = getBondData({});
         const bond = new Bond(bondData);
         expect(bond.dcr).toEqual(
-            BigNumber.from(bondData.totalDebt).div(bondData.totalCollateral),
+            BigNumber.from(bondData.totalDebt).mul(100).div(bondData.totalCollateral),
         );
     });
 
