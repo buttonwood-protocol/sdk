@@ -59,8 +59,27 @@ export class LoanManager {
             totalAmountOut = totalAmountOut.add(amountOut.quotient.toString());
             totalAmountIn = totalAmountIn.add(sale.quotient.toString());
         }
-        const discount = totalAmountIn.mul(1000).div(totalAmountOut).toNumber();
-        return discount / 1000;
+        if (this.currency.decimals < this.bond.collateral.decimals) {
+            totalAmountOut = totalAmountOut.mul(
+                BigNumber.from(10).pow(
+                    this.bond.collateral.decimals - this.currency.decimals,
+                ),
+            );
+        } else if (this.currency.decimals > this.bond.collateral.decimals) {
+            totalAmountIn = totalAmountIn.mul(
+                BigNumber.from(10).pow(
+                    this.currency.decimals - this.bond.collateral.decimals,
+                ),
+            );
+        }
+
+        return (
+            totalAmountIn
+                .sub(totalAmountOut)
+                .mul(100000)
+                .div(totalAmountOut)
+                .toNumber() / 100000
+        );
     }
 
     /**
@@ -127,7 +146,7 @@ export class LoanManager {
         }
         invariant(
             runningOutput.greaterThan(desiredOutput) ||
-                runningOutput.lessThan(desiredOutput),
+                runningOutput.equalTo(desiredOutput),
             'Insufficient deposit',
         );
 
