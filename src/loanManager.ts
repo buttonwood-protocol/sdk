@@ -73,6 +73,8 @@ export class LoanManager {
             );
         }
 
+        invariant(totalAmountOut.gt(0), 'No output');
+
         return (
             totalAmountIn
                 .sub(totalAmountOut)
