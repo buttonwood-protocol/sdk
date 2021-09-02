@@ -56,8 +56,8 @@ export class LoanManager {
             const sale = sales[i];
             const pool = this.pools[i];
             const amountOut = (await pool.getOutputAmount(sale))[0];
-            totalAmountOut = totalAmountOut.add(amountOut.toString());
-            totalAmountIn = totalAmountIn.add(sale.toString());
+            totalAmountOut = totalAmountOut.add(amountOut.quotient.toString());
+            totalAmountIn = totalAmountIn.add(sale.quotient.toString());
         }
         const discount = totalAmountIn.mul(1000).div(totalAmountOut).toNumber();
         return discount / 1000;
