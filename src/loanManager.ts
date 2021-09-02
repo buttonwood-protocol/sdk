@@ -14,7 +14,8 @@ export class LoanManager {
     public currency!: Token;
 
     constructor(public bond: Bond, public pools: Pool[]) {
-        invariant(pools.length === bond.tranches.length, 'Invalid pools');
+        // note we dont need pool for Z tranche
+        invariant(pools.length === bond.tranches.length - 1, 'Invalid pools');
         invariant(pools.length > 0, 'No pools');
 
         for (let i = 0; i < pools.length; i++) {
