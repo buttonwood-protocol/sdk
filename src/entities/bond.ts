@@ -51,7 +51,7 @@ export class Bond {
             a.index > b.index ? 1 : -1,
         );
         for (const tranche of sortedTranches) {
-            this.tranches.push(new Tranche(tranche));
+            this.tranches.push(new Tranche(tranche, chainId));
         }
     }
 
