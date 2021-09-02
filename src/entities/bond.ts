@@ -37,10 +37,10 @@ export class Bond {
     public collateral: Token;
     public tranches: Tranche[] = [];
 
-    constructor(private data: BondData) {
+    constructor(private data: BondData, chainId = 1) {
         invariant(data.tranches.length >= 2, 'Invalid tranches');
         this.collateral = new Token(
-            1,
+            chainId,
             data.collateral.id,
             parseInt(data.collateral.decimals, 10),
             data.collateral.symbol,

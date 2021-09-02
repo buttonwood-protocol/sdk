@@ -4,7 +4,7 @@ import TrancheAbi from '../../abis/Tranche.json';
 import { TrancheData } from './bond';
 
 export class Tranche {
-    constructor(private data: TrancheData) {}
+    constructor(private data: TrancheData, private chainId = 1) {}
 
     get address(): string {
         return this.data.id;
@@ -31,7 +31,7 @@ export class Tranche {
     }
 
     get token(): Token {
-        return new Token(1, this.address, this.decimals);
+        return new Token(this.chainId, this.address, this.decimals);
     }
 
     get contract(): Contract {
