@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant';
-import { BigNumber } from 'ethers';
+import { BigNumber, constants } from 'ethers';
 import { Bond, TRANCHE_RATIO_GRANULARITY } from './entities/bond';
 import { Pool } from '@uniswap/v3-sdk';
 import { CurrencyAmount, Price, Token } from '@uniswap/sdk-core';
@@ -8,6 +8,18 @@ import { addressEquals, containsAddress } from './utils';
 export interface BorrowOutput {
     trancheTokens: CurrencyAmount<Token>[];
     currencyOutput: CurrencyAmount<Token>;
+}
+
+export interface BorrowInput {
+    amount: CurrencyAmount<Token>;
+    bond: string;
+    currency: string;
+    sales: CurrencyAmount<Token>[];
+}
+
+export interface GetSalesOptions {
+    // true if we should format sales for contract input
+    contractInput: boolean;
 }
 
 export class LoanManager {
@@ -48,11 +60,9 @@ export class LoanManager {
      * @return discount The discount at which the user is getting currency from tranches
      */
     async getDiscount(sales: CurrencyAmount<Token>[]): Promise<number> {
-        invariant(sales.length === this.pools.length, 'Invalid sales');
-
         let totalAmountIn = BigNumber.from(0);
         let totalAmountOut = BigNumber.from(0);
-        for (let i = 0; i < sales.length; i++) {
+        for (let i = 0; i < this.pools.length; i++) {
             const sale = sales[i];
             const pool = this.pools[i];
             const amountOut = (await pool.getOutputAmount(sale))[0];
@@ -89,11 +99,13 @@ export class LoanManager {
      * Tries to minimize discount by selling lower tranches first
      * @param desiredOutput The amount of output currency expected
      * @param deposit The amount of collateral to deposit
+     * @param options getSales options
      * @return sales Tranche by tranche the number of tranche tokens that need to be sold
      */
     async getSales(
         desiredOutput: CurrencyAmount<Token>,
         deposit: CurrencyAmount<Token>,
+        { contractInput }: GetSalesOptions = { contractInput: false },
     ): Promise<CurrencyAmount<Token>[]> {
         invariant(
             addressEquals(
@@ -117,10 +129,16 @@ export class LoanManager {
             desiredOutput.currency,
             0,
         );
-        for (let i = 0; i < this.pools.length; i++) {
-            const pool = this.pools[i];
+        for (let i = 0; i < this.bond.tranches.length; i++) {
             const tranche = this.bond.tranches[i];
             const trancheAmount = trancheTokens[i];
+            // contract input expects empties for non-sold tokens
+            if (contractInput && i >= this.pools.length) {
+                sales.push(CurrencyAmount.fromRawAmount(tranche.token, 0));
+                continue;
+            }
+
+            const pool = this.pools[i];
 
             if (
                 runningOutput.greaterThan(desiredOutput) ||
@@ -133,8 +151,17 @@ export class LoanManager {
                 )[0];
 
                 if (runningOutput.add(maxOutput).lessThan(desiredOutput)) {
-                    sales.push(trancheAmount);
                     runningOutput = runningOutput.add(maxOutput);
+                    if (contractInput) {
+                        sales.push(
+                            CurrencyAmount.fromRawAmount(
+                                tranche.token,
+                                constants.MaxUint256.toString(),
+                            ),
+                        );
+                    } else {
+                        sales.push(trancheAmount);
+                    }
                 } else {
                     const input = (
                         await pool.getInputAmount(
@@ -146,6 +173,7 @@ export class LoanManager {
                 }
             }
         }
+
         invariant(
             runningOutput.greaterThan(desiredOutput) ||
                 runningOutput.equalTo(desiredOutput),
