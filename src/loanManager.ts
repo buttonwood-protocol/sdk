@@ -1,6 +1,6 @@
 import invariant from 'tiny-invariant';
 import { BigNumber, constants } from 'ethers';
-import { Bond, TRANCHE_RATIO_GRANULARITY } from './entities/bond';
+import { Bond } from './entities/bond';
 import { Pool } from '@uniswap/v3-sdk';
 import { CurrencyAmount, Price, Token } from '@uniswap/sdk-core';
 import { addressEquals, containsAddress } from './utils';
@@ -129,14 +129,9 @@ export class LoanManager {
             desiredOutput.currency,
             0,
         );
-        for (let i = 0; i < this.bond.tranches.length; i++) {
+        for (let i = 0; i < this.pools.length; i++) {
             const tranche = this.bond.tranches[i];
             const trancheAmount = trancheTokens[i];
-            // contract input expects empties for non-sold tokens
-            if (contractInput && i >= this.pools.length) {
-                sales.push(CurrencyAmount.fromRawAmount(tranche.token, 0));
-                continue;
-            }
 
             const pool = this.pools[i];
 
@@ -171,6 +166,18 @@ export class LoanManager {
                     sales.push(input);
                     runningOutput = desiredOutput;
                 }
+            }
+        }
+
+        // contract input expects empties for non-sold tokens
+        if (contractInput) {
+            for (let i = sales.length - 1; i < this.bond.tranches.length; i++) {
+                sales.push(
+                    CurrencyAmount.fromRawAmount(
+                        this.bond.tranches[i].token,
+                        0,
+                    ),
+                );
             }
         }
 
@@ -227,17 +234,20 @@ export class LoanManager {
 
         // note this is just an approximation as the lower discount of lower tranches may result in
         // extra output. Maybe we could do a quick binary search here to find more precise value
-        const yTrancheRatio =
-            this.bond.tranches[this.bond.tranches.length - 2].ratio;
+        let totalSoldRatio = 0;
+        for (let i = 0; i < this.pools.length; i++) {
+            totalSoldRatio += this.bond.tranches[i].ratio;
+        }
+        const yTranche = this.bond.tranches[this.bond.tranches.length - 2];
         const desiredYOutput = desiredOutput
-            .multiply(yTrancheRatio)
-            .divide(TRANCHE_RATIO_GRANULARITY);
-        const aTrancheIn = (
+            .multiply(yTranche.ratio)
+            .divide(totalSoldRatio);
+        const yTrancheIn = (
             await this.pools[this.bond.tranches.length - 2].getInputAmount(
                 desiredYOutput,
             )
         )[0];
-        return this.bond.getRequiredDeposit(aTrancheIn);
+        return this.bond.getRequiredDeposit(yTrancheIn);
     }
 
     /**
