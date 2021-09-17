@@ -19,22 +19,30 @@ function getTrancheData(): TrancheData {
     };
 }
 
+const collateral = new Token(
+    1,
+    '0x1439b0429a3ad079c55093fbfd59a7c00c888d00',
+    9,
+    'AMPL',
+    'Ampleforth',
+);
+
 describe('Tranche', () => {
     it('Fetches tranche address', () => {
         const trancheData = getTrancheData();
-        const tranche = new Tranche(trancheData);
+        const tranche = new Tranche(trancheData, collateral);
         expect(tranche.address).toEqual(trancheData.id);
     });
 
     it('Fetches tranche ratio', () => {
         const trancheData = getTrancheData();
-        const tranche = new Tranche(trancheData);
+        const tranche = new Tranche(trancheData, collateral);
         expect(tranche.ratio).toEqual(parseInt(trancheData.ratio, 10));
     });
 
     it('Fetches tranche total collateral', () => {
         const trancheData = getTrancheData();
-        const tranche = new Tranche(trancheData);
+        const tranche = new Tranche(trancheData, collateral);
         expect(tranche.totalCollateral).toEqual(
             BigNumber.from(trancheData.totalCollateral),
         );
@@ -42,7 +50,7 @@ describe('Tranche', () => {
 
     it('Fetches tranche total supply', () => {
         const trancheData = getTrancheData();
-        const tranche = new Tranche(trancheData);
+        const tranche = new Tranche(trancheData, collateral);
         expect(tranche.totalSupply).toEqual(
             BigNumber.from(trancheData.token.totalSupply),
         );
@@ -50,7 +58,7 @@ describe('Tranche', () => {
 
     it('Fetches tranche decimals', () => {
         const trancheData = getTrancheData();
-        const tranche = new Tranche(trancheData);
+        const tranche = new Tranche(trancheData, collateral);
         expect(tranche.decimals).toEqual(
             parseInt(trancheData.token.decimals, 10),
         );
@@ -58,7 +66,7 @@ describe('Tranche', () => {
 
     it('Fetches token', () => {
         const trancheData = getTrancheData();
-        const tranche = new Tranche(trancheData);
+        const tranche = new Tranche(trancheData, collateral);
         expect(tranche.token).toEqual(
             new Token(
                 1,
@@ -69,7 +77,7 @@ describe('Tranche', () => {
     });
 
     it('Fetches contract', () => {
-        const tranche = new Tranche(getTrancheData());
+        const tranche = new Tranche(getTrancheData(), collateral);
         expect(tranche.contract.address).toEqual(tranche.address);
         expect(tranche.contract instanceof Contract).toBeTruthy();
     });
