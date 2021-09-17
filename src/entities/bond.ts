@@ -28,7 +28,7 @@ export interface BondData {
     maturityDate: BigNumberish;
     collateral: TokenData;
     tranches: TrancheData[];
-    mature: boolean;
+    isMature: boolean;
     totalDebt: BigNumberish;
     totalCollateral: BigNumberish;
 }
@@ -76,7 +76,7 @@ export class Bond {
     }
 
     get mature(): boolean {
-        return this.data.mature;
+        return this.data.isMature;
     }
 
     get contract(): Contract {

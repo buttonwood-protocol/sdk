@@ -28,7 +28,7 @@ function getTrancheData(
 function getBondData({
     totalDebt = '30000000',
     totalCollateral = '30000000',
-    mature = false,
+    isMature = false,
 }): BondData {
     const address = '0x8feb0797217962c517fac6da4f8667cc000129ff';
     return {
@@ -64,7 +64,7 @@ function getBondData({
                 '1000000',
             ),
         ],
-        mature,
+        isMature,
         totalDebt,
         totalCollateral,
     };
@@ -112,7 +112,7 @@ describe('Bond', () => {
     it('Fetches bond mature', () => {
         const bondData = getBondData({});
         const bond = new Bond(bondData);
-        expect(bond.mature).toEqual(bondData.mature);
+        expect(bond.mature).toEqual(bondData.isMature);
     });
 
     it('Fetches bond collateral', () => {
@@ -305,7 +305,7 @@ describe('Bond', () => {
 
     describe('Redeem Mature', () => {
         it('Successfully gets A-tranche redemption output', () => {
-            const bondData = getBondData({ mature: true });
+            const bondData = getBondData({ isMature: true });
             const bond = new Bond(bondData);
             const inputAmount = '1000000';
             const input = CurrencyAmount.fromRawAmount(
@@ -320,7 +320,7 @@ describe('Bond', () => {
         });
 
         it('Successfully gets B-tranche redemption output', () => {
-            const bondData = getBondData({ mature: true });
+            const bondData = getBondData({ isMature: true });
             const bond = new Bond(bondData);
             const inputAmount = '1000000';
             const input = CurrencyAmount.fromRawAmount(
@@ -335,7 +335,7 @@ describe('Bond', () => {
         });
 
         it('Successfully gets Z-tranche redemption output', () => {
-            const bondData = getBondData({ mature: true });
+            const bondData = getBondData({ isMature: true });
             const bond = new Bond(bondData);
             const inputAmount = '1000000';
             const input = CurrencyAmount.fromRawAmount(
@@ -350,7 +350,7 @@ describe('Bond', () => {
         });
 
         it('Successfully gets Z-tranche redemption output with partial redemption', () => {
-            const bondData = getBondData({ mature: true });
+            const bondData = getBondData({ isMature: true });
             const bond = new Bond(bondData);
             const inputAmount = '500000';
             const input = CurrencyAmount.fromRawAmount(
@@ -365,7 +365,7 @@ describe('Bond', () => {
         });
 
         it('Fails when redeeming more than balance', () => {
-            const bondData = getBondData({ mature: true });
+            const bondData = getBondData({ isMature: true });
             const bond = new Bond(bondData);
             const inputAmount = '10000000';
             const input = CurrencyAmount.fromRawAmount(
@@ -390,7 +390,7 @@ describe('Bond', () => {
         });
 
         it('fails with invalid input', () => {
-            const bondData = getBondData({ mature: true });
+            const bondData = getBondData({ isMature: true });
             const bond = new Bond(bondData);
             const input = CurrencyAmount.fromRawAmount(
                 bond.collateral,
