@@ -135,7 +135,9 @@ describe('Bond', () => {
         const tranches = bond.tranches;
         for (let i = 0; i < tranches.length; i++) {
             const tranche = tranches[i];
-            expect(tranche).toEqual(new Tranche(bondData.tranches[i]));
+            expect(tranche).toEqual(
+                new Tranche(bondData.tranches[i], bond.collateral),
+            );
         }
     });
 
@@ -317,6 +319,7 @@ describe('Bond', () => {
                 addressEquals(output.currency.address, bond.collateral.address),
             ).toBeTruthy();
             expect(toBaseUnits(output).toString()).toEqual(inputAmount);
+            expect(bond.tranches[0].redeemValue(input)).toEqual(output);
         });
 
         it('Successfully gets B-tranche redemption output', () => {
