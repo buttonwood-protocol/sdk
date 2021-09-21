@@ -171,7 +171,7 @@ export class LoanManager {
 
         // contract input expects empties for non-sold tokens
         if (contractInput) {
-            for (let i = sales.length - 1; i < this.bond.tranches.length; i++) {
+            for (let i = sales.length; i < this.bond.tranches.length; i++) {
                 sales.push(
                     CurrencyAmount.fromRawAmount(
                         this.bond.tranches[i].token,
