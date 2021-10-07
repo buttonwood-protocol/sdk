@@ -45,7 +45,13 @@ export class Tranche {
     }
 
     get token(): Token {
-        return new Token(this.chainId, this.address, this.decimals, this.symbol, this.name);
+        return new Token(
+            this.chainId,
+            this.address,
+            this.decimals,
+            this.symbol,
+            this.name,
+        );
     }
 
     get contract(): Contract {

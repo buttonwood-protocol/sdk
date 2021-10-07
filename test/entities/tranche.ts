@@ -72,8 +72,8 @@ describe('Tranche', () => {
                 1,
                 trancheData.token.id,
                 parseInt(trancheData.token.decimals, 10),
-                "tranche",
-                "tranche Z"
+                'tranche',
+                'tranche Z',
             ),
         );
     });
