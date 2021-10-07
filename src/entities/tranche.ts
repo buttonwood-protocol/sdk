@@ -36,8 +36,16 @@ export class Tranche {
         return BigNumber.from(this.data.token.totalSupply);
     }
 
+    get symbol(): string {
+        return this.data.token.symbol;
+    }
+
+    get name(): string {
+        return this.data.token.name;
+    }
+
     get token(): Token {
-        return new Token(this.chainId, this.address, this.decimals);
+        return new Token(this.chainId, this.address, this.decimals, this.symbol, this.name);
     }
 
     get contract(): Contract {
