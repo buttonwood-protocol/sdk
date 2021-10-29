@@ -95,6 +95,30 @@ export class LoanManager {
     }
 
     /**
+     * Get the total APY a lender is expected to earn on a given deposit
+     * @param deposit The amount of currency the lender is depositing
+     * @param trancheIndex The tranche that the lender is buying
+     * @return Interest The raw amount of interest in percentage terms the lender will earn
+     */
+    async getLenderInterest(
+        deposit: CurrencyAmount<Token>,
+        trancheIndex: number,
+    ): Promise<number> {
+        const pool = this.pools[trancheIndex];
+        // lender buys tranche tokens with cash
+        const expectedOutput = BigNumber.from(
+            (await pool.getOutputAmount(deposit))[0].quotient.toString(),
+        );
+        const scaledDeposit = BigNumber.from(deposit.quotient.toString());
+
+        // assuming tranche tokens can be sold for $1 later, how much USD will we make
+        const expectedProfitUSD = expectedOutput.sub(scaledDeposit);
+        return (
+            expectedProfitUSD.mul(100000).div(scaledDeposit).toNumber() / 1000
+        );
+    }
+
+    /**
      * Get the sales required to get the desired output tokens with the given deposit size
      * Tries to minimize discount by selling lower tranches first
      * @param desiredOutput The amount of output currency expected
