@@ -99,13 +99,13 @@ describe('Bond', () => {
         );
     });
 
-    it('Fetches bond dcr', () => {
+    it('Fetches bond cdr', () => {
         const bondData = getBondData({});
         const bond = new Bond(bondData);
-        expect(bond.dcr).toEqual(
-            BigNumber.from(bondData.totalDebt)
+        expect(bond.cdr).toEqual(
+            BigNumber.from(bondData.totalCollateral)
                 .mul(100)
-                .div(bondData.totalCollateral),
+                .div(bondData.totalDebt),
         );
     });
 
