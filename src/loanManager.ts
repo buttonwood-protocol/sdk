@@ -105,16 +105,31 @@ export class LoanManager {
         trancheIndex: number,
     ): Promise<number> {
         const pool = this.pools[trancheIndex];
+
         // lender buys tranche tokens with cash
-        const expectedOutput = BigNumber.from(
+        let expectedOutput = BigNumber.from(
             (await pool.getOutputAmount(deposit))[0].quotient.toString(),
         );
-        const scaledDeposit = BigNumber.from(deposit.quotient.toString());
+        let depositValue = BigNumber.from(deposit.quotient.toString());
+
+        if (this.currency.decimals < this.bond.collateral.decimals) {
+            depositValue = depositValue.mul(
+                BigNumber.from(10).pow(
+                    this.bond.collateral.decimals - this.currency.decimals,
+                ),
+            );
+        } else if (this.currency.decimals > this.bond.collateral.decimals) {
+            expectedOutput = expectedOutput.mul(
+                BigNumber.from(10).pow(
+                    this.currency.decimals - this.bond.collateral.decimals,
+                ),
+            );
+        }
 
         // assuming tranche tokens can be sold for $1 later, how much USD will we make
-        const expectedProfitUSD = expectedOutput.sub(scaledDeposit);
+        const expectedProfitUSD = expectedOutput.sub(depositValue);
         return (
-            expectedProfitUSD.mul(100000).div(scaledDeposit).toNumber() / 1000
+            expectedProfitUSD.mul(100000).div(depositValue).toNumber() / 1000
         );
     }
 
