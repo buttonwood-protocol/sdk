@@ -79,7 +79,7 @@ function getLoanManager(bond: Bond): LoanManager {
     const currency = new Token(
         1,
         '0x462e8bc032cfc032740e418a3f4b18f9a127f192',
-        18,
+        9,
         'USDC',
         'USD',
     );
@@ -91,9 +91,9 @@ function getLoanManager(bond: Bond): LoanManager {
                 currency,
                 tranche.token,
                 FeeAmount.MEDIUM,
-                encodeSqrtRatioX96(105, 100),
+                encodeSqrtRatioX96(101, 100),
                 '1000000000000000000',
-                TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105, 100)),
+                TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(101, 100)),
                 [
                     {
                         index: nearestUsableTick(TickMath.MIN_TICK, 60),
@@ -123,7 +123,7 @@ describe('LoanManager', () => {
                     CurrencyAmount.fromRawAmount(bond.tranches[0].token, '100'),
                 )
                 .quotient.toString(),
-        ).toEqual('95');
+        ).toEqual('99');
     });
 
     it('Fetches lender APY', async () => {
@@ -131,9 +131,9 @@ describe('LoanManager', () => {
         const loanManager = getLoanManager(bond);
         const deposit = CurrencyAmount.fromRawAmount(
             loanManager.currency,
-            '5000000000000000',
+            '50000000000',
         );
         const lenderAPY = await loanManager.getLenderInterest(deposit, 0);
-        expect(lenderAPY).toEqual(4.152);
+        expect(lenderAPY).toEqual(0.696);
     });
 });
