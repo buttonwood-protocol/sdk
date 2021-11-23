@@ -1,7 +1,6 @@
 import invariant from 'tiny-invariant';
 import { BigNumber, constants } from 'ethers';
 import { Bond } from './entities/bond';
-import { Pool } from '@uniswap/v3-sdk';
 import { CurrencyAmount, Price, Token } from '@uniswap/sdk-core';
 import { addressEquals, containsAddress } from './utils';
 
@@ -22,10 +21,23 @@ export interface GetSalesOptions {
     contractInput: boolean;
 }
 
+export interface Amm {
+    token0: Token;
+    token1: Token;
+    token0Price: Price<Token, Token>;
+    token1Price: Price<Token, Token>;
+    getOutputAmount(
+        amountIn: CurrencyAmount<Token>,
+    ): Promise<[CurrencyAmount<Token>, Amm]>;
+    getInputAmount(
+        amountOut: CurrencyAmount<Token>,
+    ): Promise<[CurrencyAmount<Token>, Amm]>;
+}
+
 export class LoanManager {
     public currency!: Token;
 
-    constructor(public bond: Bond, public pools: Pool[]) {
+    constructor(public bond: Bond, public pools: Amm[]) {
         // note we dont need pool for Z tranche
         invariant(pools.length === bond.tranches.length - 1, 'Invalid pools');
         invariant(pools.length > 0, 'No pools');
