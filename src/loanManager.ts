@@ -3,6 +3,7 @@ import { BigNumber, constants } from 'ethers';
 import { Bond } from './entities/bond';
 import { CurrencyAmount, Price, Token } from '@uniswap/sdk-core';
 import { addressEquals, containsAddress } from './utils';
+import { Amm } from './entities/amm';
 
 export interface BorrowOutput {
     trancheTokens: CurrencyAmount<Token>[];
@@ -19,19 +20,6 @@ export interface BorrowInput {
 export interface GetSalesOptions {
     // true if we should format sales for contract input
     contractInput: boolean;
-}
-
-export interface Amm {
-    token0: Token;
-    token1: Token;
-    token0Price: Price<Token, Token>;
-    token1Price: Price<Token, Token>;
-    getOutputAmount(
-        amountIn: CurrencyAmount<Token>,
-    ): Promise<[CurrencyAmount<Token>, Amm]>;
-    getInputAmount(
-        amountOut: CurrencyAmount<Token>,
-    ): Promise<[CurrencyAmount<Token>, Amm]>;
 }
 
 export class LoanManager {
