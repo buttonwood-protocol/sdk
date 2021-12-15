@@ -271,22 +271,37 @@ export class LoanManager {
             'Invalid output currency',
         );
 
-        // note this is just an approximation as the lower discount of lower tranches may result in
-        // extra output. Maybe we could do a quick binary search here to find more precise value
         let totalSoldRatio = 0;
+        let lowestPriceIndex = this.pools.length - 1;
+        let lowestPrice = undefined;
         for (let i = 0; i < this.pools.length; i++) {
             totalSoldRatio += this.bond.tranches[i].ratio;
+            const pool = this.pools[i];
+
+            const tranchePrice =
+                pool.token0.address.toLowerCase() ===
+                this.currency.address.toLowerCase()
+                    ? pool.token1Price
+                    : pool.token0Price;
+
+            if (
+                lowestPrice === undefined ||
+                tranchePrice.lessThan(lowestPrice)
+            ) {
+                lowestPrice = tranchePrice;
+                lowestPriceIndex = i;
+            }
         }
-        const yTranche = this.bond.tranches[this.bond.tranches.length - 2];
-        const desiredYOutput = desiredOutput
-            .multiply(yTranche.ratio)
+        const lowestPriceTranche = this.bond.tranches[lowestPriceIndex];
+        const desiredLowestTrancheOutput = desiredOutput
+            .multiply(lowestPriceTranche.ratio)
             .divide(totalSoldRatio);
-        const yTrancheIn = (
-            await this.pools[this.bond.tranches.length - 2].getInputAmount(
-                desiredYOutput,
+        const lowestTrancheInput = (
+            await this.pools[lowestPriceIndex].getInputAmount(
+                desiredLowestTrancheOutput,
             )
         )[0];
-        return this.bond.getRequiredDeposit(yTrancheIn);
+        return this.bond.getRequiredDeposit(lowestTrancheInput);
     }
 
     /**

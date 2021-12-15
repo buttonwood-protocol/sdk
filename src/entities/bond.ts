@@ -223,9 +223,9 @@ export class Bond {
                         this.collateral,
                         toBaseUnits(desiredTrancheOutput)
                             .mul(TRANCHE_RATIO_GRANULARITY)
-                            .mul(this.totalCollateral)
+                            .mul(this.totalDebt)
                             .div(tranche.ratio)
-                            .div(this.totalDebt)
+                            .div(this.totalCollateral)
                             .toString(),
                     );
                 }
