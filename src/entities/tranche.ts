@@ -7,51 +7,55 @@ import { TrancheData } from './bond';
 
 export class Tranche {
     constructor(
-        private data: TrancheData,
-        private collateral: Token,
-        private chainId = 1,
+        private _data: TrancheData,
+        private _collateral: Token,
+        private _chainId = 1,
     ) {}
 
     get address(): string {
-        return this.data.id;
+        return this._data.id;
     }
 
     get ratio(): number {
-        return parseInt(this.data.ratio, 10);
+        return parseInt(this._data.ratio, 10);
     }
 
     get index(): number {
-        return parseInt(this.data.index, 10);
+        return parseInt(this._data.index, 10);
     }
 
     get totalCollateral(): BigNumber {
-        return BigNumber.from(this.data.totalCollateral);
+        return BigNumber.from(this._data.totalCollateral);
     }
 
     get decimals(): number {
-        return parseInt(this.data.token.decimals, 10);
+        return parseInt(this._data.token.decimals, 10);
     }
 
     get totalSupply(): BigNumber {
-        return BigNumber.from(this.data.token.totalSupply);
+        return BigNumber.from(this._data.token.totalSupply);
     }
 
     get symbol(): string {
-        return this.data.token.symbol;
+        return this._data.token.symbol;
     }
 
     get name(): string {
-        return this.data.token.name;
+        return this._data.token.name;
     }
 
     get token(): Token {
         return new Token(
-            this.chainId,
+            this._chainId,
             this.address,
             this.decimals,
             this.symbol,
             this.name,
         );
+    }
+
+    get collateralToken(): Token {
+        return this._collateral;
     }
 
     get contract(): Contract {
@@ -65,7 +69,7 @@ export class Tranche {
             'Invalid tranche amount',
         );
         return CurrencyAmount.fromRawAmount(
-            this.collateral,
+            this._collateral,
             this.totalCollateral
                 .mul(toBaseUnits(amount))
                 .div(this.totalSupply)
