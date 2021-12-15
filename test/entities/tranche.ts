@@ -40,6 +40,12 @@ describe('Tranche', () => {
         expect(tranche.ratio).toEqual(parseInt(trancheData.ratio, 10));
     });
 
+    it('Fetches tranche index', () => {
+        const trancheData = getTrancheData();
+        const tranche = new Tranche(trancheData, collateral);
+        expect(tranche.index).toEqual(parseInt(trancheData.index, 10));
+    });
+
     it('Fetches tranche total collateral', () => {
         const trancheData = getTrancheData();
         const tranche = new Tranche(trancheData, collateral);
@@ -76,6 +82,12 @@ describe('Tranche', () => {
                 'tranche Z',
             ),
         );
+    });
+
+    it('Fetches collateral token', () => {
+        const trancheData = getTrancheData();
+        const tranche = new Tranche(trancheData, collateral);
+        expect(tranche.collateralToken).toEqual(collateral);
     });
 
     it('Fetches contract', () => {
