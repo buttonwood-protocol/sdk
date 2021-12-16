@@ -31,6 +31,7 @@ export interface BondData {
     isMature: boolean;
     totalDebt: BigNumberish;
     totalCollateral: BigNumberish;
+    depositLimit?: BigNumberish;
 }
 
 export class Bond {
@@ -71,6 +72,12 @@ export class Bond {
         return this.totalCollateral.mul(100).div(this.totalDebt);
     }
 
+    get depositLimit(): BigNumber {
+        return this.data.depositLimit
+            ? BigNumber.from(this.data.depositLimit)
+            : BigNumber.from(0);
+    }
+
     get maturityDate(): BigNumber {
         return BigNumber.from(this.data.maturityDate);
     }
@@ -92,6 +99,14 @@ export class Bond {
         invariant(
             collateralInput.currency.equals(this.collateral),
             'Invalid input currency - not bond collateral',
+        );
+
+        invariant(
+            this.depositLimit.eq(0) ||
+                this.totalCollateral
+                    .add(collateralInput.quotient.toString())
+                    .lte(this.depositLimit),
+            'Exceeded deposit limit',
         );
 
         const input = toBaseUnits(collateralInput);
