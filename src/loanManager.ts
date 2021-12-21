@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant';
-import { BigNumber, constants } from 'ethers';
+import { ethers, BigNumber, constants } from 'ethers';
 import { Bond } from './entities/bond';
 import { CurrencyAmount, Price, Token } from '@uniswap/sdk-core';
 import { addressEquals, containsAddress } from './utils';
@@ -250,6 +250,14 @@ export class LoanManager {
         const aTrancheIn = (
             await this.pools[0].getInputAmount(desiredOutput)
         )[0];
+        const deposit = this.bond.getRequiredDeposit(aTrancheIn);
+        const output = (await this.borrowMax(deposit)).currencyOutput;
+
+        invariant(
+            output.greaterThan(desiredOutput) || output.equalTo(desiredOutput),
+            'Insufficient liquidity',
+        );
+
         return this.bond.getRequiredDeposit(aTrancheIn);
     }
 
@@ -271,37 +279,30 @@ export class LoanManager {
             'Invalid output currency',
         );
 
-        let totalSoldRatio = 0;
-        let lowestPriceIndex = this.pools.length - 1;
-        let lowestPrice = undefined;
-        for (let i = 0; i < this.pools.length; i++) {
-            totalSoldRatio += this.bond.tranches[i].ratio;
-            const pool = this.pools[i];
+        // binary search for proper minimum
+        // there isn't a good constant time way to find this value
+        // due to the complexities of varying tick liquidity
+        // across A and B tranche pools
+        const absoluteMax = await this.getMaximumRequiredDeposit(desiredOutput);
+        let max = absoluteMax;
+        let min = CurrencyAmount.fromRawAmount(absoluteMax.currency, 0);
+        const oneUnit = ethers.utils.parseUnits('1', max.currency.decimals);
+        // try to get within one unit of the actual minimum
+        // stop after 10 binary search loops
+        let runs = 0;
+        while (max.subtract(min).greaterThan(oneUnit.toString()) && runs < 10) {
+            const mid = min.add(max.subtract(min).divide(2));
+            const output = (await this.borrowMax(mid)).currencyOutput;
+            runs += 1;
 
-            const tranchePrice =
-                pool.token0.address.toLowerCase() ===
-                this.currency.address.toLowerCase()
-                    ? pool.token1Price
-                    : pool.token0Price;
-
-            if (
-                lowestPrice === undefined ||
-                tranchePrice.lessThan(lowestPrice)
-            ) {
-                lowestPrice = tranchePrice;
-                lowestPriceIndex = i;
+            if (output.lessThan(desiredOutput)) {
+                min = mid;
+            } else {
+                max = mid;
             }
         }
-        const lowestPriceTranche = this.bond.tranches[lowestPriceIndex];
-        const desiredLowestTrancheOutput = desiredOutput
-            .multiply(lowestPriceTranche.ratio)
-            .divide(totalSoldRatio);
-        const lowestTrancheInput = (
-            await this.pools[lowestPriceIndex].getInputAmount(
-                desiredLowestTrancheOutput,
-            )
-        )[0];
-        return this.bond.getRequiredDeposit(lowestTrancheInput);
+
+        return max;
     }
 
     /**

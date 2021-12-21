@@ -236,11 +236,12 @@ export class Bond {
                 } else {
                     return CurrencyAmount.fromRawAmount(
                         this.collateral,
+                        // note this is the inverse of deposit calculation
                         toBaseUnits(desiredTrancheOutput)
                             .mul(TRANCHE_RATIO_GRANULARITY)
-                            .mul(this.totalDebt)
+                            .mul(this.totalCollateral)
                             .div(tranche.ratio)
-                            .div(this.totalCollateral)
+                            .div(this.totalDebt)
                             .toString(),
                     );
                 }
