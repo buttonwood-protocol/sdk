@@ -90,6 +90,48 @@ export class Bond {
         return new Contract(this.address, BondAbi);
     }
 
+    trancheRedeemValue(
+        trancheAmount: CurrencyAmount<Token>,
+    ): CurrencyAmount<Token> {
+        const inputTranche: Tranche | undefined = this.tranches.find((t) =>
+            addressEquals(t.address, trancheAmount.currency.address),
+        );
+
+        invariant(inputTranche, 'Invalid input currency');
+
+        if (this.mature) {
+            return inputTranche.redeemValue(trancheAmount);
+        }
+
+        let remainingCollateral = this.totalCollateral;
+        for (let i = 0; i < this.tranches.length - 1; i++) {
+            const t = this.tranches[i];
+            const trancheCollateral = remainingCollateral.gt(t.totalSupply)
+                ? t.totalSupply
+                : remainingCollateral;
+            remainingCollateral = remainingCollateral.sub(trancheCollateral);
+
+            if (addressEquals(t.address, inputTranche.address)) {
+                return CurrencyAmount.fromRawAmount(
+                    this.collateral,
+                    trancheCollateral
+                        .mul(toBaseUnits(trancheAmount))
+                        .div(t.totalSupply)
+                        .toString(),
+                );
+            }
+        }
+
+        const zTranche = this.tranches[this.tranches.length - 1];
+        return CurrencyAmount.fromRawAmount(
+            this.collateral,
+            remainingCollateral
+                .mul(toBaseUnits(trancheAmount))
+                .div(zTranche.totalSupply)
+                .toString(),
+        );
+    }
+
     /**
      * Given a certain amount of deposited collateral, return the tranche tokens that will be minted
      * @param collateralInput the amount of collateral to input into the bond
