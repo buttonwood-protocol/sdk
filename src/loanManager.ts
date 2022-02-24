@@ -125,7 +125,10 @@ export class LoanManager {
 
         // assuming tranche tokens can be sold for $1 later, how much USD will we make
         const expectedProfitUSD = expectedOutput.sub(depositValue);
-        return new Percent(expectedProfitUSD.toString(), depositValue.toString());
+        return new Percent(
+            expectedProfitUSD.toString(),
+            depositValue.toString(),
+        );
     }
 
     /**
@@ -217,7 +220,7 @@ export class LoanManager {
 
         invariant(
             runningOutput.greaterThan(desiredOutput) ||
-            runningOutput.equalTo(desiredOutput),
+                runningOutput.equalTo(desiredOutput),
             'Insufficient deposit',
         );
 
@@ -346,7 +349,7 @@ export class LoanManager {
         for (let i = 0; i < trancheAmounts.length - 1; i++) {
             invariant(
                 sales[i].lessThan(trancheAmounts[i]) ||
-                sales[i].equalTo(trancheAmounts[i]),
+                    sales[i].equalTo(trancheAmounts[i]),
                 'Invalid sale',
             );
             currencyOutput = currencyOutput.add(

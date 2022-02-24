@@ -1,6 +1,12 @@
 import { CurrencyAmount, Token } from '@uniswap/sdk-core';
 import { Bond, BondData, LoanManager, TrancheData } from '../src';
-import { encodeSqrtRatioX96, FeeAmount, nearestUsableTick, Pool, TickMath } from '@uniswap/v3-sdk';
+import {
+    encodeSqrtRatioX96,
+    FeeAmount,
+    nearestUsableTick,
+    Pool,
+    TickMath,
+} from '@uniswap/v3-sdk';
 
 function getTrancheData(
     address: string,
