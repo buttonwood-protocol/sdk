@@ -1,12 +1,6 @@
 import { CurrencyAmount, Token } from '@uniswap/sdk-core';
 import { Bond, BondData, LoanManager, TrancheData } from '../src';
-import {
-    Pool,
-    TickMath,
-    nearestUsableTick,
-    FeeAmount,
-    encodeSqrtRatioX96,
-} from '@uniswap/v3-sdk';
+import { encodeSqrtRatioX96, FeeAmount, nearestUsableTick, Pool, TickMath } from '@uniswap/v3-sdk';
 
 function getTrancheData(
     address: string,
@@ -134,6 +128,6 @@ describe('LoanManager', () => {
             '50000000000',
         );
         const lenderAPY = await loanManager.getLenderInterest(deposit, 0);
-        expect(lenderAPY).toEqual(0.696);
+        expect(lenderAPY.toFixed(3)).toEqual('0.697');
     });
 });
