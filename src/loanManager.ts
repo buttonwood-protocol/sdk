@@ -1,7 +1,7 @@
 import invariant from 'tiny-invariant';
-import { ethers, BigNumber, constants } from 'ethers';
+import { BigNumber, constants, ethers } from 'ethers';
 import { Bond } from './entities/bond';
-import { CurrencyAmount, Price, Token } from '@uniswap/sdk-core';
+import { CurrencyAmount, Percent, Price, Token } from '@uniswap/sdk-core';
 import { addressEquals, containsAddress } from './utils';
 import { Amm } from './entities/amm';
 
@@ -59,7 +59,7 @@ export class LoanManager {
      * @param sales The number of tranche tokens to sell, maybe output from `getSales`
      * @return discount The discount at which the user is getting currency from tranches
      */
-    async getDiscount(sales: CurrencyAmount<Token>[]): Promise<number> {
+    async getDiscount(sales: CurrencyAmount<Token>[]): Promise<Percent> {
         let totalAmountIn = BigNumber.from(0);
         let totalAmountOut = BigNumber.from(0);
         for (let i = 0; i < this.pools.length; i++) {
@@ -85,12 +85,9 @@ export class LoanManager {
 
         invariant(totalAmountOut.gt(0), 'No output');
 
-        return (
-            totalAmountIn
-                .sub(totalAmountOut)
-                .mul(100000)
-                .div(totalAmountOut)
-                .toNumber() / 100000
+        return new Percent(
+            totalAmountIn.sub(totalAmountOut).toString(),
+            totalAmountOut.toString(),
         );
     }
 
@@ -103,7 +100,7 @@ export class LoanManager {
     async getLenderInterest(
         deposit: CurrencyAmount<Token>,
         trancheIndex: number,
-    ): Promise<number> {
+    ): Promise<Percent> {
         const pool = this.pools[trancheIndex];
 
         // lender buys tranche tokens with cash
@@ -128,8 +125,9 @@ export class LoanManager {
 
         // assuming tranche tokens can be sold for $1 later, how much USD will we make
         const expectedProfitUSD = expectedOutput.sub(depositValue);
-        return (
-            expectedProfitUSD.mul(100000).div(depositValue).toNumber() / 1000
+        return new Percent(
+            expectedProfitUSD.toString(),
+            depositValue.toString(),
         );
     }
 
