@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant';
-import { CurrencyAmount, Token } from '@uniswap/sdk-core';
+import { CurrencyAmount, Percent, Token } from '@uniswap/sdk-core';
 import BondAbi from '../../abis/BondController.json';
 import { BigNumber, BigNumberish, Contract } from 'ethers';
 import { addressEquals, toBaseUnits } from '../utils';
@@ -88,6 +88,24 @@ export class Bond {
 
     get contract(): Contract {
         return new Contract(this.address, BondAbi);
+    }
+
+    collateralization(trancheIndex: number): Percent {
+        let collateral = this.totalCollateral;
+
+        // pretend to allocate debt in waterfall sequence up to the requested tranche
+        for (let i = 0; i < trancheIndex; i++) {
+            const trancheSupply = this.tranches[i].totalSupply;
+            collateral = collateral.lt(trancheSupply)
+                ? BigNumber.from(0)
+                : collateral.sub(this.tranches[i].totalSupply);
+        }
+
+        // final result is remaining collateral after distribution over the debt of the tranche
+        return new Percent(
+            collateral.toString(),
+            this.tranches[trancheIndex].totalSupply.toString(),
+        );
     }
 
     trancheRedeemValue(
