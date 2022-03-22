@@ -454,4 +454,70 @@ describe('Bond', () => {
             );
         });
     });
+
+    describe('Collateralization', () => {
+        it('successfully gets collateralization for A tranche', () => {
+            const bondData = getBondData({ totalCollateral: '3000000' });
+            const bond = new Bond(bondData);
+
+            const output = bond.collateralization(0);
+            expect(output.toFixed(0).toString()).toEqual('300');
+        });
+
+        it('successfully gets collateralization for B tranche', () => {
+            const bondData = getBondData({ totalCollateral: '3000000' });
+            const bond = new Bond(bondData);
+
+            const output = bond.collateralization(1);
+            expect(output.toFixed(0).toString()).toEqual('200');
+        });
+
+        it('successfully gets collateralization for Z tranche', () => {
+            const bondData = getBondData({ totalCollateral: '3000000' });
+            const bond = new Bond(bondData);
+
+            const output = bond.collateralization(2);
+            expect(output.toFixed(0).toString()).toEqual('100');
+        });
+
+        it('successfully gets collateralization for A tranche =100%', () => {
+            const bondData = getBondData({ totalCollateral: '1000000' });
+            const bond = new Bond(bondData);
+
+            const output = bond.collateralization(0);
+            expect(output.toFixed(0).toString()).toEqual('100');
+        });
+
+        it('successfully gets collateralization for A tranche <100%', () => {
+            const bondData = getBondData({ totalCollateral: '500000' });
+            const bond = new Bond(bondData);
+
+            const output = bond.collateralization(0);
+            expect(output.toFixed(0)).toEqual('50');
+        });
+
+        it('successfully gets collateralization for B tranche =100%', () => {
+            const bondData = getBondData({ totalCollateral: '2000000' });
+            const bond = new Bond(bondData);
+
+            const output = bond.collateralization(1);
+            expect(output.toFixed(0).toString()).toEqual('100');
+        });
+
+        it('successfully gets collateralization for B tranche <100%', () => {
+            const bondData = getBondData({ totalCollateral: '1500000' });
+            const bond = new Bond(bondData);
+
+            const output = bond.collateralization(1);
+            expect(output.toFixed(0)).toEqual('50');
+        });
+
+        it('successfully gets collateralization for B tranche 0%', () => {
+            const bondData = getBondData({ totalCollateral: '1000000' });
+            const bond = new Bond(bondData);
+
+            const output = bond.collateralization(1);
+            expect(output.toFixed(0)).toEqual('0');
+        });
+    });
 });
