@@ -69,7 +69,10 @@ export class Bond {
     }
 
     get cdr(): Percent {
-        return new Percent(this.totalCollateral.toString(), this.totalDebt.toString());
+        return new Percent(
+            this.totalCollateral.toString(),
+            this.totalDebt.toString(),
+        );
     }
 
     get depositLimit(): BigNumber {
@@ -163,9 +166,9 @@ export class Bond {
 
         invariant(
             this.depositLimit.eq(0) ||
-            this.totalCollateral
-                .add(collateralInput.quotient.toString())
-                .lte(this.depositLimit),
+                this.totalCollateral
+                    .add(collateralInput.quotient.toString())
+                    .lte(this.depositLimit),
             'Exceeded deposit limit',
         );
 
@@ -219,7 +222,7 @@ export class Bond {
         invariant(tranche, 'Invalid input currency');
         invariant(
             trancheAmount.lessThan(tranche.totalCollateral.toString()) ||
-            trancheAmount.equalTo(tranche.totalCollateral.toString()),
+                trancheAmount.equalTo(tranche.totalCollateral.toString()),
             'Insufficient collateral',
         );
 

@@ -102,10 +102,12 @@ describe('Bond', () => {
     it('Fetches bond cdr', () => {
         const bondData = getBondData({});
         const bond = new Bond(bondData);
-        expect(bond.cdr).toEqual(new Percent(
-            bondData.totalCollateral.toString(),
-            bondData.totalDebt.toString(),
-        ));
+        expect(bond.cdr).toEqual(
+            new Percent(
+                bondData.totalCollateral.toString(),
+                bondData.totalDebt.toString(),
+            ),
+        );
     });
 
     it('Fetches bond mature', () => {
