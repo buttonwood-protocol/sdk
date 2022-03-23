@@ -68,8 +68,8 @@ export class Bond {
         return BigNumber.from(this.data.totalCollateral);
     }
 
-    get cdr(): BigNumber {
-        return this.totalCollateral.mul(100).div(this.totalDebt);
+    get cdr(): Percent {
+        return new Percent(this.totalCollateral.toString(), this.totalDebt.toString());
     }
 
     get depositLimit(): BigNumber {
@@ -163,9 +163,9 @@ export class Bond {
 
         invariant(
             this.depositLimit.eq(0) ||
-                this.totalCollateral
-                    .add(collateralInput.quotient.toString())
-                    .lte(this.depositLimit),
+            this.totalCollateral
+                .add(collateralInput.quotient.toString())
+                .lte(this.depositLimit),
             'Exceeded deposit limit',
         );
 
@@ -204,7 +204,7 @@ export class Bond {
 
     /**
      * Given an amount of a single tranche token, return the amount of collateral returned by redeeming after maturity
-     * @param amount The amount of the tranche token to redeem
+     * @param trancheAmount The amount of the tranche token to redeem
      * @return output The amount of collateral returned
      */
     redeemMature(trancheAmount: CurrencyAmount<Token>): CurrencyAmount<Token> {
@@ -219,7 +219,7 @@ export class Bond {
         invariant(tranche, 'Invalid input currency');
         invariant(
             trancheAmount.lessThan(tranche.totalCollateral.toString()) ||
-                trancheAmount.equalTo(tranche.totalCollateral.toString()),
+            trancheAmount.equalTo(tranche.totalCollateral.toString()),
             'Insufficient collateral',
         );
 
@@ -233,7 +233,7 @@ export class Bond {
     }
 
     /**
-     * Given a amounts of redeemed tranche tokens, return the amount of collateral that will be returned
+     * Given amounts of redeemed tranche tokens, return the amount of collateral that will be returned
      * @param trancheInputs the amounts of tranche tokens to redeem in order of tranche seniority
      * @return output The amount of collateral that will be returned
      */
@@ -272,7 +272,7 @@ export class Bond {
 
     /**
      * Given a certain amount of deposited collateral, return the tranche tokens that will be minted
-     * @param collateralInput the amount of collateral to input into the bond
+     * @param desiredTrancheOutput the amount of collateral to input into the bond
      * @return output The amount of tranche tokens in order that will be received for the input
      */
     getRequiredDeposit(
