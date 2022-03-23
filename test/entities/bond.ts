@@ -1,5 +1,5 @@
 import { BigNumber, Contract } from 'ethers';
-import { CurrencyAmount, Token } from '@uniswap/sdk-core';
+import { CurrencyAmount, Percent, Token } from '@uniswap/sdk-core';
 import { Bond, BondData, Tranche, TrancheData } from '../../src';
 import { addressEquals, toBaseUnits } from '../../src/utils';
 
@@ -103,9 +103,10 @@ describe('Bond', () => {
         const bondData = getBondData({});
         const bond = new Bond(bondData);
         expect(bond.cdr).toEqual(
-            BigNumber.from(bondData.totalCollateral)
-                .mul(100)
-                .div(bondData.totalDebt),
+            new Percent(
+                bondData.totalCollateral.toString(),
+                bondData.totalDebt.toString(),
+            ),
         );
     });
 
