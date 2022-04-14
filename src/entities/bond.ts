@@ -66,7 +66,11 @@ export class Bond {
 
     get totalCollateral(): BigNumber {
         if (this.mature) {
-            return this.tranches.reduce((collateral: BigNumber, tranche: Tranche) => collateral.add(tranche.totalCollateral), BigNumber.from(0));
+            return this.tranches.reduce(
+                (collateral: BigNumber, tranche: Tranche) =>
+                    collateral.add(tranche.totalCollateral),
+                BigNumber.from(0),
+            );
         } else {
             return BigNumber.from(this.data.totalCollateral);
         }

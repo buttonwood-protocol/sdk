@@ -102,9 +102,7 @@ describe('Bond', () => {
     it('Fetches bond total collateral when mature', () => {
         const bondData = getBondData({ isMature: true });
         const bond = new Bond(bondData);
-        expect(bond.totalCollateral).toEqual(
-            BigNumber.from(3000000),
-        );
+        expect(bond.totalCollateral).toEqual(BigNumber.from(3000000));
     });
 
     it('Fetches bond cdr', () => {
