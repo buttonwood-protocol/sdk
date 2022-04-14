@@ -25,8 +25,6 @@ describe('UniswapV2Pair', () => {
         const uniswapV2Pair = new UniswapV2Pair(token0Amount, token1Amount);
         const pair = new Pair(token0Amount, token1Amount);
 
-        console.log(pair.token0);
-        console.log(pair.token1);
         expect(uniswapV2Pair.token0.equals(pair.token0)).toBeTruthy();
         expect(uniswapV2Pair.token1.equals(pair.token1)).toBeTruthy();
     });
