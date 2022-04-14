@@ -102,6 +102,10 @@ export class Bond {
     }
 
     collateralization(trancheIndex: number): Percent {
+        if (this.tranches[trancheIndex].totalSupply.eq(0)) {
+            return new Percent(0, 1);
+        }
+
         let collateral = this.totalCollateral;
 
         // pretend to allocate debt in waterfall sequence up to the requested tranche
