@@ -49,7 +49,8 @@ export class LoanManager {
 
     getTranchePrice(trancheIndex: number): Price<Token, Token> {
         const pool = this.pools[trancheIndex];
-        return this.bond.tranches[trancheIndex].address === pool.token0.address
+        return this.bond.tranches[trancheIndex].address.toLowerCase() ===
+            pool.token0.address.toLowerCase()
             ? pool.token0Price
             : pool.token1Price;
     }
