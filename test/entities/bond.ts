@@ -9,12 +9,15 @@ function getTrancheData(
     index: number,
     totalCollateral: string,
     totalSupply: string,
+    isMature = false,
 ): TrancheData {
     return {
         id: address,
         ratio: ratio.toString(),
         index: index.toString(),
         totalCollateral,
+        totalCollateralAtMaturity: isMature ? totalCollateral : '0',
+        totalSupplyAtMaturity: isMature ? totalSupply : '0',
         token: {
             id: address,
             symbol: 'tranche',
@@ -34,6 +37,7 @@ function getBondData({
     return {
         id: address,
         maturityDate: '1630532337',
+        maturedDate: isMature ? '1630532337' : '0',
         collateral: {
             id: '0x1439b0429a3ad079c55093fbfd59a7c00c888d00',
             symbol: 'AMPL',
@@ -66,7 +70,9 @@ function getBondData({
         ],
         isMature,
         totalDebt,
+        totalDebtAtMaturity: isMature ? totalDebt : '0',
         totalCollateral,
+        totalCollateralAtMaturity: isMature ? totalCollateral : '0',
     };
 }
 
@@ -102,7 +108,7 @@ describe('Bond', () => {
     it('Fetches bond total collateral when mature', () => {
         const bondData = getBondData({ isMature: true });
         const bond = new Bond(bondData);
-        expect(bond.totalCollateral).toEqual(BigNumber.from(3000000));
+        expect(bond.totalCollateral).toEqual(BigNumber.from(30000000));
     });
 
     it('Fetches bond cdr', () => {

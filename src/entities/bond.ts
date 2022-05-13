@@ -12,6 +12,8 @@ export interface TrancheData {
     index: string;
     ratio: string;
     totalCollateral: BigNumberish;
+    totalCollateralAtMaturity: BigNumberish | null;
+    totalSupplyAtMaturity: BigNumberish | null;
     token: TokenData;
 }
 
@@ -26,11 +28,14 @@ export interface TokenData {
 export interface BondData {
     id: string;
     maturityDate: BigNumberish;
+    maturedDate: BigNumberish | null;
     collateral: TokenData;
     tranches: TrancheData[];
     isMature: boolean;
     totalDebt: BigNumberish;
+    totalDebtAtMaturity: BigNumberish | null;
     totalCollateral: BigNumberish;
+    totalCollateralAtMaturity: BigNumberish | null;
     depositLimit?: BigNumberish;
 }
 
@@ -64,23 +69,30 @@ export class Bond {
         return BigNumber.from(this.data.totalDebt);
     }
 
+    get totalDebtAtMaturity(): BigNumber {
+        return BigNumber.from(this.data.totalDebtAtMaturity || 0);
+    }
+
     get totalCollateral(): BigNumber {
-        if (this.mature) {
-            return this.tranches.reduce(
-                (collateral: BigNumber, tranche: Tranche) =>
-                    collateral.add(tranche.totalCollateral),
-                BigNumber.from(0),
-            );
-        } else {
-            return BigNumber.from(this.data.totalCollateral);
-        }
+        return BigNumber.from(this.data.totalCollateral);
+    }
+
+    get totalCollateralAtMaturity(): BigNumber {
+        return BigNumber.from(this.data.totalCollateralAtMaturity || 0);
     }
 
     get cdr(): Percent {
-        return new Percent(
-            this.totalCollateral.toString(),
-            this.totalDebt.toString(),
-        );
+        if (this.mature) {
+            return new Percent(
+                this.totalCollateralAtMaturity.toString(),
+                this.totalDebtAtMaturity.toString(),
+            );
+        } else {
+            return new Percent(
+                this.totalCollateral.toString(),
+                this.totalDebt.toString(),
+            );
+        }
     }
 
     get depositLimit(): BigNumber {
@@ -90,7 +102,11 @@ export class Bond {
     }
 
     get maturityDate(): BigNumber {
-        return BigNumber.from(this.data.maturityDate);
+        if (this.mature) {
+            return BigNumber.from(this.data.maturedDate || 0);
+        } else {
+            return BigNumber.from(this.data.maturityDate);
+        }
     }
 
     get mature(): boolean {
@@ -102,24 +118,33 @@ export class Bond {
     }
 
     collateralization(trancheIndex: number): Percent {
-        if (this.tranches[trancheIndex].totalSupply.eq(0)) {
+        const trancheTotalSupply = this.mature
+            ? this.tranches[trancheIndex].totalSupplyAtMaturity
+            : this.tranches[trancheIndex].totalSupply;
+
+        if (trancheTotalSupply.eq(0)) {
             return new Percent(0, 1);
         }
 
-        let collateral = this.totalCollateral;
+        let collateral = this.mature
+            ? this.totalCollateralAtMaturity
+            : this.totalCollateral;
 
         // pretend to allocate debt in waterfall sequence up to the requested tranche
         for (let i = 0; i < trancheIndex; i++) {
-            const trancheSupply = this.tranches[i].totalSupply;
+            const tranche = this.tranches[i];
+            const trancheSupply = this.mature
+                ? tranche.totalSupplyAtMaturity
+                : tranche.totalSupply;
             collateral = collateral.lt(trancheSupply)
                 ? BigNumber.from(0)
-                : collateral.sub(this.tranches[i].totalSupply);
+                : collateral.sub(trancheSupply);
         }
 
         // final result is remaining collateral after distribution over the debt of the tranche
         return new Percent(
             collateral.toString(),
-            this.tranches[trancheIndex].totalSupply.toString(),
+            trancheTotalSupply.toString(),
         );
     }
 

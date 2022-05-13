@@ -28,12 +28,20 @@ export class Tranche {
         return BigNumber.from(this._data.totalCollateral);
     }
 
+    get totalCollateralAtMaturity(): BigNumber {
+        return BigNumber.from(this._data.totalCollateralAtMaturity || 0);
+    }
+
     get decimals(): number {
         return parseInt(this._data.token.decimals, 10);
     }
 
     get totalSupply(): BigNumber {
         return BigNumber.from(this._data.token.totalSupply);
+    }
+
+    get totalSupplyAtMaturity(): BigNumber {
+        return BigNumber.from(this._data.totalSupplyAtMaturity || 0);
     }
 
     get symbol(): string {

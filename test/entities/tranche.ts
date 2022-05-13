@@ -9,6 +9,8 @@ function getTrancheData(): TrancheData {
         ratio: '500',
         index: '1',
         totalCollateral: '120000000000',
+        totalCollateralAtMaturity: '0',
+        totalSupplyAtMaturity: '0',
         token: {
             id: address,
             symbol: 'tranche',
