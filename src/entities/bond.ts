@@ -12,8 +12,8 @@ export interface TrancheData {
     index: string;
     ratio: string;
     totalCollateral: BigNumberish;
-    totalCollateralAtMaturity: BigNumberish;
-    totalSupplyAtMaturity: BigNumberish;
+    totalCollateralAtMaturity: BigNumberish | null;
+    totalSupplyAtMaturity: BigNumberish | null;
     token: TokenData;
 }
 
@@ -28,14 +28,14 @@ export interface TokenData {
 export interface BondData {
     id: string;
     maturityDate: BigNumberish;
-    maturedDate: BigNumberish;
+    maturedDate: BigNumberish | null;
     collateral: TokenData;
     tranches: TrancheData[];
     isMature: boolean;
     totalDebt: BigNumberish;
-    totalDebtAtMaturity: BigNumberish;
+    totalDebtAtMaturity: BigNumberish | null;
     totalCollateral: BigNumberish;
-    totalCollateralAtMaturity: BigNumberish;
+    totalCollateralAtMaturity: BigNumberish | null;
     depositLimit?: BigNumberish;
 }
 
@@ -70,7 +70,7 @@ export class Bond {
     }
 
     get totalDebtAtMaturity(): BigNumber {
-        return BigNumber.from(this.data.totalDebtAtMaturity);
+        return BigNumber.from(this.data.totalDebtAtMaturity || 0);
     }
 
     get totalCollateral(): BigNumber {
@@ -78,7 +78,7 @@ export class Bond {
     }
 
     get totalCollateralAtMaturity(): BigNumber {
-        return BigNumber.from(this.data.totalCollateralAtMaturity);
+        return BigNumber.from(this.data.totalCollateralAtMaturity || 0);
     }
 
     get cdr(): Percent {
@@ -103,7 +103,7 @@ export class Bond {
 
     get maturityDate(): BigNumber {
         if (this.mature) {
-            return BigNumber.from(this.data.maturedDate);
+            return BigNumber.from(this.data.maturedDate || 0);
         } else {
             return BigNumber.from(this.data.maturityDate);
         }

@@ -29,7 +29,7 @@ export class Tranche {
     }
 
     get totalCollateralAtMaturity(): BigNumber {
-        return BigNumber.from(this._data.totalCollateralAtMaturity);
+        return BigNumber.from(this._data.totalCollateralAtMaturity || 0);
     }
 
     get decimals(): number {
@@ -41,7 +41,7 @@ export class Tranche {
     }
 
     get totalSupplyAtMaturity(): BigNumber {
-        return BigNumber.from(this._data.totalSupplyAtMaturity);
+        return BigNumber.from(this._data.totalSupplyAtMaturity || 0);
     }
 
     get symbol(): string {
