@@ -1,7 +1,6 @@
 import { BigNumber, Contract } from 'ethers';
-import invariant from 'tiny-invariant';
 import { CurrencyAmount, Token } from '@uniswap/sdk-core';
-import { toBaseUnits } from '../utils';
+import { addressEquals, invariant, toBaseUnits } from '../utils';
 import TrancheAbi from '../../abis/Tranche.json';
 import { TrancheData } from './bond';
 
@@ -72,8 +71,7 @@ export class Tranche {
 
     redeemValue(amount: CurrencyAmount<Token>): CurrencyAmount<Token> {
         invariant(
-            amount.currency.address.toLowerCase() ===
-                this.address.toLowerCase(),
+            addressEquals(amount.currency.address, this.address),
             'Invalid tranche amount',
         );
         return CurrencyAmount.fromRawAmount(

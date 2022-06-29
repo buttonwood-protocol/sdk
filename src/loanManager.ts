@@ -1,8 +1,7 @@
-import invariant from 'tiny-invariant';
 import { BigNumber, constants, ethers } from 'ethers';
 import { Bond } from './entities/bond';
 import { CurrencyAmount, Percent, Price, Token } from '@uniswap/sdk-core';
-import { addressEquals, containsAddress } from './utils';
+import { addressEquals, containsAddress, invariant } from './utils';
 import { Amm } from './entities/amm';
 
 export interface BorrowOutput {
