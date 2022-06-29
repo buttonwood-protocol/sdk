@@ -1,8 +1,7 @@
-import invariant from 'tiny-invariant';
 import { CurrencyAmount, Percent, Token } from '@uniswap/sdk-core';
 import BondAbi from '../../abis/BondController.json';
 import { BigNumber, BigNumberish, Contract } from 'ethers';
-import { addressEquals, toBaseUnits } from '../utils';
+import { addressEquals, toBaseUnits, invariant } from '../utils';
 import { Tranche } from './tranche';
 
 export const TRANCHE_RATIO_GRANULARITY = 1000;
